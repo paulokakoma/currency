@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculadora de Compras Online</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .calculator-card {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        transition: background-image 0.5s ease-in-out,
+          background-color 0.5s ease-in-out;
+      }
+      .theme-bai {
+        /* Gradiente de três cores corrigido */
+        background-image: linear-gradient(to bottom, #0194b3, #006c6e, #b56b3e);
+      }
+      .theme-bci {
+        /* Cor sólida verde escura corrigida */
+        background-color: #1f3a38;
+        background-image: none;
+      }
+      .theme-bfa {
+        background-image: radial-gradient(circle, #f7931e, #eb5c28);
+      }
+      /* Remove as setas do campo numérico */
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        -moz-appearance: textfield; /* Firefox */
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div
+      class="w-full max-w-xl mx-auto rounded-2xl shadow-lg overflow-hidden calculator-card theme-bai"
+    >
+      <div class="p-10">
+        <div class="text-center mb-10">
+          <h1 class="text-4xl font-bold text-white">Currency Calculator</h1>
+          <p class="text-gray-200 mt-4 text-lg">
+            Estime o custo total da sua compra em Kwanzas
+          </p>
+        </div>
+
+        <input type="hidden" id="exchangeRate" value="850" />
+
+        <!-- User Input -->
+        <div class="mb-7">
+          <label
+            for="purchasePrice"
+            class="block text-base font-medium text-gray-200 mb-3"
+            >Valor em Dólar</label
+          >
+          <div class="flex items-center">
+            <input
+              type="text"
+              inputmode="numeric"
+              id="purchasePrice"
+              class="flex-1 block w-full rounded-none rounded-l-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 text-lg p-4"
+              placeholder="0,00"
+            />
+            <select
+              id="bankSelector"
+              class="p-4 border-gray-300 bg-gray-200 text-gray-700 text-lg border-l-0 rounded-r-lg focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option selected>BAI</option>
+              <option>BFA</option>
+              <option>BCI</option>
+            </select>
+          </div>
+        </div>
+
+        <button
+          id="calculateBtn"
+          class="w-full bg-blue-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 text-xl"
+        >
+          Calcular
+        </button>
+
+        <!-- Área de Resultado sempre visível -->
+        <div id="result" class="mt-10 border-t border-white/20 pt-8 space-y-8">
+          <div>
+            <p class="text-base font-medium text-gray-200">
+              Valor estimado do câmbio
+            </p>
+            <p id="exchangeValue" class="text-4xl font-bold text-white mt-2">
+              0,00 Kz
+            </p>
+          </div>
+          <div id="totalCostBox" class="bg-white/10 p-7 rounded-lg">
+            <p class="text-base font-semibold text-white">
+              Valor a carregar (com taxa de 2,28%)
+            </p>
+            <p id="totalCost" class="text-5xl font-bold text-white mt-2">
+              0,00 Kz
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const exchangeRateInput = document.getElementById("exchangeRate");
+      const purchasePriceInput = document.getElementById("purchasePrice");
+      const bankSelector = document.getElementById("bankSelector");
+      const calculatorCard = document.querySelector(".calculator-card");
+      const calculateBtn = document.getElementById("calculateBtn");
+      const exchangeValueP = document.getElementById("exchangeValue");
+      const totalCostP = document.getElementById("totalCost");
+      const totalCostBox = document.getElementById("totalCostBox");
+
+      // Função para buscar a taxa de câmbio do nosso servidor Node.js
+      async function fetchExchangeRate(bankCode) {
+        // Verifica se a página está a ser servida por um servidor real (http/https)
+        if (window.location.protocol.startsWith("http")) {
+          try {
+            // Adiciona o código do banco à URL da API
+            const response = await fetch(`/api/exchange-rate?bank=${bankCode}`);
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(
+                errorData.error || "A resposta da rede não foi ok."
+              );
+            }
+            const data = await response.json();
+            exchangeRateInput.value = data.rate;
+
+            // Opcional: recalcula automaticamente se já houver um valor inserido
+            if (purchasePriceInput.value) {
+              calculateBtn.click();
+            }
+          } catch (error) {
+            console.error(
+              `Falha ao buscar taxa de câmbio para ${bankCode}:`,
+              error.message
+            );
+            // Usa um valor padrão ou informa o utilizador
+            exchangeRateInput.value = "0"; // Define como 0 para evitar cálculos errados
+            // Limpa os resultados se a taxa não for encontrada
+            exchangeValueP.textContent = "0,00 Kz";
+            totalCostP.textContent = "0,00 Kz";
+          }
+        } else {
+          // Se não estiver num servidor (ex: a abrir o ficheiro localmente), usa o valor padrão.
+          console.log(
+            "Ambiente sem servidor detectado. Usando taxa de câmbio padrão."
+          );
+        }
+      }
+
+      // Temas para os bancos
+      const themes = {
+        bai: {
+          button: ["bg-blue-600", "hover:bg-blue-700"],
+          highlight: "bg-white/10",
+        },
+        bci: {
+          button: ["bg-pink-600", "hover:bg-pink-700"],
+          highlight: "bg-pink-900/30",
+        },
+        bfa: {
+          button: ["bg-blue-900", "hover:bg-blue-800"],
+          highlight: "bg-blue-950/30",
+        },
+      };
+
+      bankSelector.addEventListener("change", (e) => {
+        const selectedBank = e.target.value;
+        const selectedBankLower = selectedBank.toLowerCase();
+
+        // 1. Atualiza o tema visual do cartão principal
+        calculatorCard.classList.remove("theme-bai", "theme-bci", "theme-bfa");
+        calculatorCard.classList.add(`theme-${selectedBankLower}`);
+
+        // 2. Atualiza as cores do botão e da caixa de resultado
+        const newTheme = themes[selectedBankLower];
+        if (newTheme) {
+          // Remove temas antigos para evitar conflitos
+          Object.values(themes).forEach((theme) => {
+            calculateBtn.classList.remove(...theme.button);
+            totalCostBox.classList.remove(theme.highlight);
+          });
+          // Adiciona o novo tema
+          calculateBtn.classList.add(...newTheme.button);
+          totalCostBox.classList.add(newTheme.highlight);
+        }
+
+        // 3. Busca a nova taxa de câmbio (isto acontece em paralelo)
+        fetchExchangeRate(selectedBank);
+      });
+
+      purchasePriceInput.addEventListener("input", (e) => {
+        const originalCursorPosition = e.target.selectionStart;
+        const originalValueLength = e.target.value.length;
+        let value = e.target.value.replace(/\D/g, "");
+
+        if (value === "") {
+          e.target.value = "";
+          return;
+        }
+
+        value = parseInt(value, 10).toString();
+        value = value.padStart(3, "0");
+        let integerPart = value.slice(0, -2);
+        let decimalPart = value.slice(-2);
+        integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        e.target.value = `${integerPart},${decimalPart}`;
+
+        const newLength = e.target.value.length;
+        const cursorShift = newLength - originalValueLength;
+        e.target.setSelectionRange(
+          originalCursorPosition + cursorShift,
+          originalCursorPosition + cursorShift
+        );
+      });
+
+      calculateBtn.addEventListener("click", () => {
+        const exchangeRate = parseFloat(exchangeRateInput.value);
+        const purchasePrice = parseFloat(
+          purchasePriceInput.value.replace(/\./g, "").replace(",", ".")
+        );
+
+        if (isNaN(exchangeRate) || exchangeRate <= 0) {
+          // Apenas redefine os valores, sem mostrar erro
+          exchangeValueP.textContent = "0,00 Kz";
+          totalCostP.textContent = "0,00 Kz";
+          return;
+        }
+        if (isNaN(purchasePrice) || purchasePrice <= 0) {
+          // Apenas redefine os valores, sem mostrar erro
+          exchangeValueP.textContent = "0,00 Kz";
+          totalCostP.textContent = "0,00 Kz";
+          return;
+        }
+
+        const costPerDollarWithMargin = exchangeRate * 1.12;
+        const exchangeValueResult = costPerDollarWithMargin * purchasePrice;
+        const finalCost = exchangeValueResult * 1.0228;
+
+        displayResult(exchangeValueResult, finalCost);
+      });
+
+      function displayResult(exchangeValue, totalCost) {
+        const options = {
+          style: "currency",
+          currency: "AOA",
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        };
+        exchangeValueP.textContent =
+          exchangeValue
+            .toLocaleString("pt-AO", options)
+            .replace("AOA", "")
+            .trim() + " Kz";
+        totalCostP.textContent =
+          totalCost.toLocaleString("pt-AO", options).replace("AOA", "").trim() +
+          " Kz";
+      }
+
+      // Busca a taxa de câmbio quando a página carrega
+      document.addEventListener("DOMContentLoaded", () => {
+        // Busca a taxa para o banco que já vem selecionado no HTML
+        fetchExchangeRate(bankSelector.value);
+      });
+    </script>
+  </body>
+</html>
