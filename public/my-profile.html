@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Registo - Calculadora de Câmbio</title>
+    <title>Meu Perfil - Calculadora de Câmbio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
@@ -22,44 +22,43 @@
       <div class="w-full max-w-md rounded-xl bg-white p-6 md:p-8 shadow-lg">
         <div class="text-center">
           <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
-            Crie a sua Conta
+            Meu Perfil
           </h1>
-          <p class="mt-2 text-gray-500">
-            Comece a usar a calculadora com 5 créditos gratuitos.
-          </p>
+          <p class="mt-2 text-gray-500">Altere a sua palavra-passe abaixo.</p>
         </div>
 
-        <!-- Formulário de Registo -->
-        <form id="register-form" class="mt-8 space-y-6">
+        <!-- Formulário de Alteração de Palavra-passe -->
+        <form id="update-password-form" class="mt-8 space-y-6">
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700"
-              >Email</label
+            <label
+              for="new-password"
+              class="block text-sm font-medium text-gray-700"
+              >Nova Palavra-passe</label
             >
             <input
-              id="email"
-              name="email"
-              type="email"
-              autocomplete="email"
+              id="new-password"
+              name="new-password"
+              type="password"
               required
+              minlength="6"
               class="mt-1 block w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              placeholder="seu.email@exemplo.com"
+              placeholder="Pelo menos 6 caracteres"
             />
           </div>
 
           <div>
             <label
-              for="password"
+              for="confirm-password"
               class="block text-sm font-medium text-gray-700"
-              >Palavra-passe</label
+              >Confirmar Nova Palavra-passe</label
             >
             <input
-              id="password"
-              name="password"
+              id="confirm-password"
+              name="confirm-password"
               type="password"
-              autocomplete="new-password"
               required
               class="mt-1 block w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              placeholder="••••••••"
+              placeholder="Repita a palavra-passe"
             />
           </div>
 
@@ -71,24 +70,20 @@
               type="submit"
               class="w-full rounded-md bg-blue-600 py-3 px-4 font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              Criar Conta
+              Salvar Alterações
             </button>
           </div>
         </form>
 
         <p class="mt-6 text-center text-sm text-gray-600">
-          Já tem uma conta?
-          <a
-            href="/login.html"
-            class="font-medium text-blue-600 hover:underline"
-            >Faça login aqui</a
+          <a href="/" class="font-medium text-blue-600 hover:underline"
+            >Voltar para a Calculadora</a
           >.
         </p>
       </div>
     </div>
 
-    <!-- Scripts de autenticação -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="/js/auth.js"></script>
+    <script src="/js/profile.js"></script>
   </body>
 </html>

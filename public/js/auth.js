@@ -7,7 +7,11 @@ const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqeWp4ZmN6a3F1dnVhcGZ6a2l0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNzA0ODUsImV4cCI6MjA3Mjg0NjQ4NX0.y93bJv6OnAxMAkEFV4PVZlCBZRh_LrCNDG-4Al_o6JQ"; // Substitua pela sua Chave Pública (Anon)
 
 const { createClient } = supabase;
-const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: true, // Mantém a sessão, mas não indefinidamente se o navegador for fechado
+  },
+});
 
 const registerForm = document.getElementById("register-form");
 const loginForm = document.getElementById("login-form");
@@ -34,7 +38,12 @@ if (registerForm) {
     });
 
     if (error) {
-      showMessage(`Erro no registo: ${error.message}`);
+      // Melhora a mensagem de erro para o caso de email duplicado
+      if (error.message.includes("User already registered")) {
+        showMessage("Este email já está registado. Tente fazer login.");
+      } else {
+        showMessage(`Erro no registo: ${error.message}`);
+      }
     } else {
       // Como a confirmação de email está desativada, redireciona diretamente para a calculadora
       showMessage("Conta criada com sucesso! A entrar...", "success");
@@ -62,8 +71,23 @@ if (loginForm) {
     if (error) {
       showMessage(`Erro no login: ${error.message}`);
     } else {
-      // Após o login, redireciona para a página principal da calculadora
-      window.location.href = "/index.html";
+      // Após o login, verifica a role do utilizador para o redirecionamento
+      const user = data.user;
+      if (user) {
+        const { data: profile, error: profileError } = await _supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        if (profile && profile.role === "admin") {
+          // Se for admin, redireciona para o painel de administração
+          window.location.href = "/admin.html";
+        } else {
+          // Caso contrário, redireciona para a calculadora
+          window.location.href = "/index.html";
+        }
+      }
     }
   });
 }

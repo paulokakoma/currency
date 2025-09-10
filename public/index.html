@@ -26,9 +26,37 @@
         background-image: linear-gradient(to bottom, #0194b3, #006c6e, #b56b3e);
       }
       .theme-bci {
-        /* Cor sólida verde escura corrigida */
+        /* Cor sólida verde escura original */
         background-color: #1f3a38;
         background-image: none;
+      }
+      .theme-bic {
+        /* Gradiente com as cores do BIC (vermelho e cinza escuro) */
+        background-image: linear-gradient(to right, #d42128, #2b2b2b);
+      }
+      .theme-bpc {
+        /* Gradiente com as cores do BPC */
+        background-image: linear-gradient(to right, #00529b, #00417a);
+      }
+      .theme-yetu {
+        /* Gradiente inspirado no design do Banco Yetu */
+        background-image: linear-gradient(
+          90deg,
+          #006034 0%,
+          #006135 18%,
+          #006c40 45%,
+          #19b57f 100%
+        );
+      }
+      .theme-default {
+        /* Usando o mesmo gradiente do Yetu como padrão */
+        background-image: linear-gradient(
+          90deg,
+          #006034 0%,
+          #006135 18%,
+          #006c40 45%,
+          #19b57f 100%
+        );
       }
       .theme-bfa {
         background-image: radial-gradient(circle, #f7931e, #eb5c28);
@@ -42,16 +70,82 @@
       input[type="number"] {
         -moz-appearance: textfield; /* Firefox */
       }
+      /* Estilos para as notificações Toast */
+      .toast {
+        animation: slide-in 0.5s forwards, slide-out 0.5s 4.5s forwards;
+        z-index: 100;
+      }
+      @keyframes slide-in {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes slide-out {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
     </style>
   </head>
-  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <div
-      class="w-full max-w-xl mx-auto rounded-2xl shadow-lg overflow-hidden calculator-card theme-bai"
+  <body class="bg-gray-100 min-h-screen p-4">
+    <!-- Header com Perfil e Créditos -->
+    <header
+      id="user-header"
+      class="hidden fixed top-4 right-4 z-50 flex items-center space-x-4 bg-white p-2 rounded-full shadow-md"
     >
-      <div class="p-10">
-        <div class="text-center mb-10">
-          <h1 class="text-4xl font-bold text-white">Currency Calculator</h1>
-          <p class="text-gray-200 mt-4 text-lg">
+      <div class="flex items-center space-x-2">
+        <span class="text-sm font-medium text-gray-600">Créditos:</span>
+        <span
+          id="credits-count"
+          class="text-sm font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full"
+          >0</span
+        >
+      </div>
+      <div class="relative">
+        <img
+          id="user-avatar"
+          src="https://i.pravatar.cc/40"
+          alt="Avatar"
+          class="w-10 h-10 rounded-full cursor-pointer"
+        />
+        <div
+          id="logout-menu"
+          class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1"
+        >
+          <a
+            href="/my-profile.html"
+            id="profile-btn"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            >Meu Perfil</a
+          >
+          <a
+            href="#"
+            id="logout-btn"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            >Logout</a
+          >
+        </div>
+      </div>
+    </header>
+    <div
+      class="w-full max-w-xl mx-auto rounded-2xl shadow-lg overflow-hidden calculator-card theme-bai mt-20 md:mt-0"
+    >
+      <div class="p-6 md:p-10">
+        <div class="text-center mb-8 md:mb-10">
+          <h1 class="text-3xl md:text-4xl font-bold text-white">
+            Currency Calculator
+          </h1>
+          <p class="text-gray-200 mt-3 md:mt-4 text-base md:text-lg">
             Estime o custo total da sua compra em Kwanzas
           </p>
         </div>
@@ -70,42 +164,49 @@
               type="text"
               inputmode="numeric"
               id="purchasePrice"
-              class="flex-1 block w-full rounded-none rounded-l-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 text-lg p-4"
+              class="flex-1 block w-full rounded-none rounded-l-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 text-base md:text-lg p-4"
               placeholder="0,00"
             />
             <select
               id="bankSelector"
               class="p-4 border-gray-300 bg-gray-200 text-gray-700 text-lg border-l-0 rounded-r-lg focus:ring-blue-500 focus:border-blue-500"
             >
-              <option selected>BAI</option>
-              <option>BFA</option>
-              <option>BCI</option>
+              <!-- As opções serão carregadas dinamicamente -->
             </select>
           </div>
         </div>
 
         <button
           id="calculateBtn"
-          class="w-full bg-blue-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 text-xl"
+          class="w-full bg-blue-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 text-lg md:text-xl"
         >
           Calcular
         </button>
 
         <!-- Área de Resultado sempre visível -->
-        <div id="result" class="mt-10 border-t border-white/20 pt-8 space-y-8">
+        <div
+          id="result"
+          class="mt-8 md:mt-10 border-t border-white/20 pt-6 md:pt-8 space-y-6 md:space-y-8"
+        >
           <div>
             <p class="text-base font-medium text-gray-200">
               Valor estimado do câmbio
             </p>
-            <p id="exchangeValue" class="text-4xl font-bold text-white mt-2">
+            <p
+              id="exchangeValue"
+              class="text-3xl md:text-4xl font-bold text-white mt-2"
+            >
               0,00 Kz
             </p>
           </div>
-          <div id="totalCostBox" class="bg-white/10 p-7 rounded-lg">
+          <div id="totalCostBox" class="bg-white/10 p-5 md:p-7 rounded-lg">
             <p class="text-base font-semibold text-white">
               Valor a carregar (com taxa de 2,28%)
             </p>
-            <p id="totalCost" class="text-5xl font-bold text-white mt-2">
+            <p
+              id="totalCost"
+              class="text-4xl md:text-5xl font-bold text-white mt-2"
+            >
               0,00 Kz
             </p>
           </div>
@@ -113,7 +214,23 @@
       </div>
     </div>
 
+    <!-- Contentor para as notificações Toast -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2"></div>
+
+    <!-- Scripts de Supabase e autenticação -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+      // Configuração do Supabase
+      const SUPABASE_URL = "https://jjyjxfczkquvuapfzkit.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqeWp4ZmN6a3F1dnVhcGZ6a2l0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNzA0ODUsImV4cCI6MjA3Mjg0NjQ4NX0.y93bJv6OnAxMAkEFV4PVZlCBZRh_LrCNDG-4Al_o6JQ";
+      const { createClient } = supabase;
+      const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+          persistSession: true,
+        },
+      });
+
       const exchangeRateInput = document.getElementById("exchangeRate");
       const purchasePriceInput = document.getElementById("purchasePrice");
       const bankSelector = document.getElementById("bankSelector");
@@ -123,13 +240,56 @@
       const totalCostP = document.getElementById("totalCost");
       const totalCostBox = document.getElementById("totalCostBox");
 
+      // Função para exibir notificações "toast"
+      function showToast(message, type = "info") {
+        const container = document.getElementById("toast-container");
+        // Verifica se já existe um toast no contentor. Se sim, não adiciona outro.
+        if (container.hasChildNodes()) {
+          return;
+        }
+
+        let bgColor;
+        switch (type) {
+          case "success":
+            bgColor = "bg-green-500";
+            break;
+          case "warning":
+            bgColor = "bg-yellow-500";
+            break;
+          case "error":
+            bgColor = "bg-red-500";
+            break;
+          default:
+            bgColor = "bg-blue-500";
+        }
+        const toast = document.createElement("div");
+        toast.className = `toast p-4 rounded-lg shadow-lg text-white text-sm font-medium ${bgColor}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.remove();
+        }, 5000);
+      }
+
       // Função para buscar a taxa de câmbio do nosso servidor Node.js
       async function fetchExchangeRate(bankCode) {
         // Verifica se a página está a ser servida por um servidor real (http/https)
         if (window.location.protocol.startsWith("http")) {
           try {
+            const {
+              data: { session },
+            } = await _supabase.auth.getSession();
+            const headers = {};
+            if (session) {
+              headers["Authorization"] = `Bearer ${session.access_token}`;
+            }
+
             // Adiciona o código do banco à URL da API
-            const response = await fetch(`/api/exchange-rate?bank=${bankCode}`);
+            const response = await fetch(
+              `/api/exchange-rate?bank=${bankCode}`,
+              { headers }
+            );
+
             if (!response.ok) {
               const errorData = await response.json();
               throw new Error(
@@ -139,9 +299,9 @@
             const data = await response.json();
             exchangeRateInput.value = data.rate;
 
-            // Opcional: recalcula automaticamente se já houver um valor inserido
+            // Apenas recalcula se já houver um valor inserido, sem gastar crédito.
             if (purchasePriceInput.value) {
-              calculateBtn.click();
+              performCalculation();
             }
           } catch (error) {
             console.error(
@@ -162,6 +322,36 @@
         }
       }
 
+      // Função para buscar a lista de bancos e popular o dropdown
+      async function populateBankSelector() {
+        try {
+          const response = await fetch("/api/all-rates");
+          if (!response.ok) {
+            throw new Error("Não foi possível carregar a lista de bancos.");
+          }
+          const banks = await response.json();
+
+          if (banks && banks.length > 0) {
+            bankSelector.innerHTML = ""; // Limpa opções existentes
+            banks.forEach((bank, index) => {
+              const option = document.createElement("option");
+              option.value = bank.bank_code;
+              option.textContent = bank.bank_code;
+              if (index === 0) {
+                option.selected = true; // Seleciona o primeiro banco por padrão
+              }
+              bankSelector.appendChild(option);
+            });
+            // Após popular, busca a taxa para o primeiro banco da lista
+            fetchExchangeRate(bankSelector.value);
+          } else {
+            bankSelector.innerHTML = "<option>Nenhum banco</option>";
+          }
+        } catch (error) {
+          console.error("Erro ao popular os bancos:", error);
+        }
+      }
+
       // Temas para os bancos
       const themes = {
         bai: {
@@ -172,9 +362,25 @@
           button: ["bg-pink-600", "hover:bg-pink-700"],
           highlight: "bg-pink-900/30",
         },
+        bic: {
+          button: ["bg-red-700", "hover:bg-red-800"], // Botão vermelho
+          highlight: "bg-black/20", // Destaque com fundo preto translúcido
+        },
         bfa: {
           button: ["bg-blue-900", "hover:bg-blue-800"],
           highlight: "bg-blue-950/30",
+        },
+        bpc: {
+          button: ["bg-sky-500", "hover:bg-sky-600"], // Tom de azul claro para o botão
+          highlight: "bg-sky-400/10", // Destaque com o mesmo tom
+        },
+        default: {
+          button: ["bg-yellow-600", "hover:bg-yellow-700"], // Botão dourado/amarelo
+          highlight: "bg-yellow-400/10", // Destaque dourado subtil
+        },
+        yetu: {
+          button: ["bg-yellow-600", "hover:bg-yellow-700"], // Tom dourado/amarelo
+          highlight: "bg-yellow-400/10", // Destaque dourado subtil
         },
       };
 
@@ -183,11 +389,23 @@
         const selectedBankLower = selectedBank.toLowerCase();
 
         // 1. Atualiza o tema visual do cartão principal
-        calculatorCard.classList.remove("theme-bai", "theme-bci", "theme-bfa");
-        calculatorCard.classList.add(`theme-${selectedBankLower}`);
+        calculatorCard.classList.remove(
+          "theme-bai",
+          "theme-bci",
+          "theme-bfa",
+          "theme-bic",
+          "theme-bpc",
+          "theme-yetu",
+          "theme-default" // Adiciona a remoção do tema padrão para garantir a troca correta
+        );
+        // Adiciona a classe do tema específico ou a classe do tema padrão
+        const themeClass = themes[selectedBankLower]
+          ? `theme-${selectedBankLower}`
+          : "theme-default";
+        calculatorCard.classList.add(themeClass);
 
         // 2. Atualiza as cores do botão e da caixa de resultado
-        const newTheme = themes[selectedBankLower];
+        const newTheme = themes[selectedBankLower] || themes.default; // Usa o tema do banco ou o padrão
         if (newTheme) {
           // Remove temas antigos para evitar conflitos
           Object.values(themes).forEach((theme) => {
@@ -228,20 +446,19 @@
         );
       });
 
-      calculateBtn.addEventListener("click", () => {
+      // Função que realiza o cálculo matemático e exibe o resultado
+      function performCalculation() {
         const exchangeRate = parseFloat(exchangeRateInput.value);
         const purchasePrice = parseFloat(
           purchasePriceInput.value.replace(/\./g, "").replace(",", ".")
         );
 
-        if (isNaN(exchangeRate) || exchangeRate <= 0) {
-          // Apenas redefine os valores, sem mostrar erro
-          exchangeValueP.textContent = "0,00 Kz";
-          totalCostP.textContent = "0,00 Kz";
-          return;
-        }
-        if (isNaN(purchasePrice) || purchasePrice <= 0) {
-          // Apenas redefine os valores, sem mostrar erro
+        if (
+          isNaN(exchangeRate) ||
+          exchangeRate <= 0 ||
+          isNaN(purchasePrice) ||
+          purchasePrice <= 0
+        ) {
           exchangeValueP.textContent = "0,00 Kz";
           totalCostP.textContent = "0,00 Kz";
           return;
@@ -252,6 +469,90 @@
         const finalCost = exchangeValueResult * 1.0228;
 
         displayResult(exchangeValueResult, finalCost);
+      }
+
+      // Função para solicitar mais créditos
+      async function requestMoreCredits() {
+        const requestBtn = document.getElementById("calculateBtn");
+        requestBtn.disabled = true;
+        requestBtn.textContent = "Enviando...";
+
+        try {
+          const {
+            data: { session },
+          } = await _supabase.auth.getSession();
+          const response = await fetch("/api/request-credits", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Falha ao enviar o pedido.");
+          }
+
+          showToast("Pedido enviado ao administrador!", "success");
+          requestBtn.textContent = "Pedido Enviado";
+          // O botão permanecerá desativado até que o admin adicione créditos e a página seja recarregada.
+        } catch (error) {
+          console.error("Erro ao solicitar créditos:", error);
+          showToast("Erro ao enviar o pedido. Tente mais tarde.", "error");
+          requestBtn.textContent = "Adquirir mais"; // Permite tentar novamente
+          requestBtn.disabled = false;
+        }
+      }
+
+      calculateBtn.addEventListener("click", async () => {
+        // 1. Verifica se tem valor para calcular
+        if (!purchasePriceInput.value) {
+          showToast("Por favor, insira um valor para calcular.", "warning");
+          return;
+        }
+
+        // 2. Chama a API para debitar o crédito
+        try {
+          const {
+            data: { session },
+          } = await _supabase.auth.getSession();
+          const response = await fetch("/api/calculate", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          });
+
+          if (!response.ok) {
+            // O middleware 'hasCredits' já trata o erro 402 e envia a mensagem
+            const errorData = await response.json();
+            if (response.status === 402) {
+              showToast("Créditos esgotados!", "error");
+              // Transforma o botão em um gatilho para solicitar mais créditos
+              calculateBtn.textContent = "Adquirir mais";
+              calculateBtn.classList.remove("bg-blue-600", "hover:bg-blue-700");
+              calculateBtn.classList.add(
+                "bg-yellow-500",
+                "hover:bg-yellow-600"
+              );
+              // Remove o listener de cálculo e adiciona o de solicitação
+              calculateBtn.replaceWith(calculateBtn.cloneNode(true)); // Clona para remover listeners
+              document
+                .getElementById("calculateBtn")
+                .addEventListener("click", requestMoreCredits);
+            }
+            throw new Error(errorData.error);
+          }
+
+          // 3. Se a API autorizou, faz o cálculo e atualiza os créditos na tela
+          performCalculation();
+          updateCreditsDisplay(); // Atualiza a contagem de créditos
+        } catch (error) {
+          // Apenas regista no console erros que não sejam sobre créditos esgotados,
+          // pois esse já é um estado esperado e tratado na UI.
+          if (!error.message.includes("Créditos de consulta esgotados")) {
+            console.error("Erro ao validar cálculo:", error.message);
+          }
+        }
       });
 
       function displayResult(exchangeValue, totalCost) {
@@ -261,20 +562,105 @@
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         };
-        exchangeValueP.textContent =
-          exchangeValue
-            .toLocaleString("pt-AO", options)
-            .replace("AOA", "")
-            .trim() + " Kz";
-        totalCostP.textContent =
-          totalCost.toLocaleString("pt-AO", options).replace("AOA", "").trim() +
-          " Kz";
+        // Formata o número e remove qualquer símbolo de moeda (AOA ou Kz) antes de adicionar o nosso.
+        const formattedExchangeValue = exchangeValue
+          .toLocaleString("pt-AO", options)
+          .replace(/AOA|Kz/g, "")
+          .trim();
+        const formattedTotalCost = totalCost
+          .toLocaleString("pt-AO", options)
+          .replace(/AOA|Kz/g, "")
+          .trim();
+
+        exchangeValueP.textContent = `${formattedExchangeValue} Kz`;
+        totalCostP.textContent = `${formattedTotalCost} Kz`;
+        // Ajusta o tamanho da fonte dos resultados para evitar overflow
+        adjustFontSize(exchangeValueP);
+        adjustFontSize(totalCostP);
+      }
+
+      // Função para ajustar o tamanho da fonte para caber no container
+      function adjustFontSize(element) {
+        // Reseta o tamanho da fonte para o padrão antes de calcular
+        element.style.fontSize = ""; // Remove o estilo inline
+
+        const container = document.getElementById("result"); // Usar o container principal como referência
+        let currentFontSize = parseFloat(
+          window.getComputedStyle(element, null).getPropertyValue("font-size")
+        );
+
+        // Enquanto o elemento for mais largo que o seu contentor, reduz a fonte
+        while (
+          element.scrollWidth > container.clientWidth &&
+          currentFontSize > 10
+        ) {
+          currentFontSize--;
+          element.style.fontSize = `${currentFontSize}px`;
+        }
+      }
+
+      // Função para buscar e exibir os créditos do usuário
+      async function updateCreditsDisplay(showWelcomeToast = false) {
+        const {
+          data: { user },
+        } = await _supabase.auth.getUser();
+        if (user) {
+          const { data: profile, error } = await _supabase
+            .from("profiles")
+            .select("query_credits, role")
+            .eq("id", user.id)
+            .single();
+
+          if (profile) {
+            const creditsCount = document.getElementById("credits-count");
+            if (profile.role === "admin") {
+              creditsCount.innerHTML = "&infin;"; // Símbolo de infinito para admin
+            } else {
+              const currentCredits = profile.query_credits;
+              creditsCount.textContent = currentCredits;
+
+              if (showWelcomeToast) {
+                showToast(
+                  `Bem-vindo! Você tem ${currentCredits} consultas restantes.`,
+                  "info"
+                );
+              } else if (currentCredits === 5) {
+                showToast("Atenção: Restam apenas 5 consultas!", "warning");
+              }
+            }
+          }
+        }
       }
 
       // Busca a taxa de câmbio quando a página carrega
       document.addEventListener("DOMContentLoaded", () => {
-        // Busca a taxa para o banco que já vem selecionado no HTML
-        fetchExchangeRate(bankSelector.value);
+        _supabase.auth.onAuthStateChange((event, session) => {
+          const userHeader = document.getElementById("user-header");
+          if (session) {
+            // Utilizador está logado
+            userHeader.classList.remove("hidden");
+            updateCreditsDisplay(true); // Mostra o toast de boas-vindas
+            populateBankSelector();
+          } else {
+            // Utilizador não está logado, redireciona para o login
+            window.location.href = "/login.html";
+          }
+        });
+
+        // Lógica do menu de logout
+        const userAvatar = document.getElementById("user-avatar");
+        const logoutMenu = document.getElementById("logout-menu");
+        const logoutBtn = document.getElementById("logout-btn");
+
+        userAvatar.addEventListener("click", () => {
+          logoutMenu.classList.toggle("hidden");
+        });
+
+        logoutBtn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          await _supabase.auth.signOut();
+          // O onAuthStateChange irá detetar o logout e redirecionar
+        });
       });
     </script>
   </body>

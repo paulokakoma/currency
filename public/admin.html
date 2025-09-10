@@ -15,37 +15,415 @@
       body {
         font-family: "Inter", sans-serif;
       }
+      .toast {
+        animation: slide-in 0.5s forwards, slide-out 0.5s 4.5s forwards;
+      }
+      @keyframes slide-in {
+        from {
+          transform: translateX(100%);
+        }
+        to {
+          transform: translateX(0);
+        }
+      }
+      @keyframes slide-out {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(100%);
+        }
+      }
+      /* Remove as setas do campo numérico */
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        -moz-appearance: textfield; /* Firefox */
+      }
+      .modal-overlay {
+        transition: opacity 0.3s ease-in-out;
+      }
+      .modal-content {
+        transition: transform 0.3s ease-in-out;
+      }
+      .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);
+      }
     </style>
   </head>
-  <body class="bg-gray-50">
-    <div class="container mx-auto p-8">
-      <header class="mb-10">
-        <h1 class="text-4xl font-bold text-gray-800">
-          Painel de Administração
-        </h1>
-        <p class="text-gray-500 mt-2">
-          Atualize as taxas de câmbio dos bancos em tempo real.
-        </p>
-      </header>
-
-      <main>
-        <div class="bg-white p-8 rounded-xl shadow-md">
-          <h2 class="text-2xl font-semibold text-gray-700 mb-6">
-            Taxas de Câmbio Atuais
-          </h2>
-          <div id="rates-container" class="space-y-6">
-            <!-- As taxas serão carregadas aqui pelo JavaScript -->
-            <p class="text-gray-500">A carregar taxas...</p>
-          </div>
+  <body class="bg-gray-100">
+    <div id="admin-panel" class="hidden">
+      <!-- Sidebar -->
+      <aside
+        id="sidebar"
+        class="fixed top-0 left-0 z-40 w-64 h-screen bg-gray-800 text-white transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out"
+      >
+        <div class="p-6">
+          <h2 class="text-2xl font-bold">Admin</h2>
         </div>
-      </main>
+        <nav id="sidebar-nav" class="mt-8">
+          <a
+            href="#dashboard"
+            class="nav-link w-full flex items-center py-3 px-6 text-left text-white bg-gray-700 transition"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 mr-3"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 12.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+              />
+            </svg>
+            Dashboard
+          </a>
+          <a
+            href="#add-bank"
+            id="add-bank-nav-link"
+            class="nav-link w-full flex items-center py-3 px-6 text-left text-gray-300 hover:bg-gray-700 hover:text-white transition"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 mr-3"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Adicionar Banco
+          </a>
+          <a
+            href="#customers"
+            class="nav-link w-full flex items-center py-3 px-6 text-left text-gray-300 hover:bg-gray-700 hover:text-white transition"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 mr-3"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"
+              />
+            </svg>
+            Gestão de Clientes
+          </a>
+          <a
+            href="/"
+            class="w-full flex items-center py-3 px-6 text-gray-300 hover:bg-gray-700 hover:text-white transition"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 mr-3"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+              />
+            </svg>
+            Calculadora
+          </a>
+        </nav>
+        <div class="absolute bottom-0 w-full">
+          <button
+            id="logout-btn"
+            class="w-full flex items-center py-3 px-6 text-gray-300 hover:bg-gray-700 hover:text-white transition"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 mr-3"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Logout
+          </button>
+        </div>
+      </aside>
 
-      <footer class="text-center mt-12 text-gray-400">
-        <p>&copy; 2025 Calculadora de Câmbio. Todos os direitos reservados.</p>
-      </footer>
+      <!-- Overlay para fechar a sidebar em mobile -->
+      <div
+        id="sidebar-overlay"
+        class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"
+      ></div>
+
+      <!-- Conteúdo Principal -->
+      <div class="md:ml-64 transition-all duration-300 ease-in-out">
+        <header
+          class="bg-white shadow-sm p-4 flex justify-between items-center"
+        >
+          <div class="flex items-center" id="header-title-container">
+            <!-- Botão Hambúrguer para Mobile (agora à esquerda) -->
+            <button
+              id="menu-btn"
+              class="md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 mr-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+            <h1 id="header-title" class="text-xl font-semibold text-gray-700">
+              Dashboard
+            </h1>
+          </div>
+        </header>
+
+        <main class="p-4 md:p-8">
+          <!-- Painel do Dashboard -->
+          <div id="dashboard-panel" class="panel space-y-8">
+            <!-- Cartões de Estatísticas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <!-- Card 1: Total de Bancos -->
+              <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
+                <div class="bg-blue-100 p-3 rounded-full">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6 text-blue-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01"
+                    />
+                  </svg>
+                </div>
+                <div class="ml-4">
+                  <p class="text-sm text-gray-500">Total de Bancos</p>
+                  <p
+                    id="total-banks-stat"
+                    class="text-2xl font-bold text-gray-800"
+                  >
+                    0
+                  </p>
+                </div>
+              </div>
+              <!-- Card 2: Total de Clientes -->
+              <div class="bg-white p-6 rounded-xl shadow-md flex items-center">
+                <div class="bg-green-100 p-3 rounded-full">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6 text-green-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                </div>
+                <div class="ml-4">
+                  <p class="text-sm text-gray-500">Total de Clientes</p>
+                  <p
+                    id="total-customers-stat"
+                    class="text-2xl font-bold text-gray-800"
+                  >
+                    0
+                  </p>
+                </div>
+              </div>
+              <!-- Outros cards podem ser adicionados aqui -->
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-md mt-8">
+              <h2 class="text-2xl font-semibold text-gray-700 mb-6">
+                Taxas de Câmbio Atuais
+              </h2>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <!-- O cabeçalho da tabela será inserido aqui pelo JS -->
+                  </thead>
+                  <tbody
+                    id="rates-container"
+                    class="bg-white divide-y divide-gray-200"
+                  >
+                    <!-- As linhas de taxas serão carregadas aqui -->
+                  </tbody>
+                </table>
+                <div id="loading-message" class="text-center p-4 text-gray-500">
+                  A carregar taxas...
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Painel para Adicionar Novo Banco -->
+          <div id="add-bank-panel" class="panel hidden">
+            <div class="bg-gray-100 p-8 rounded-xl shadow-md">
+              <h2 class="text-2xl font-semibold text-gray-700 mb-6">
+                Adicionar Novo Banco
+              </h2>
+              <div class="max-w-md mx-auto">
+                <form id="add-rate-form" class="space-y-4">
+                  <div>
+                    <label
+                      for="new-bank-code"
+                      class="block text-sm font-medium text-gray-700"
+                      >Código do Banco (Ex: BNI)</label
+                    >
+                    <input
+                      type="text"
+                      id="new-bank-code"
+                      name="bank_code"
+                      required
+                      class="mt-1 block w-full rounded-md border-2 border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-4 text-base"
+                      style="text-transform: uppercase"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      for="new-exchange-rate"
+                      class="block text-sm font-medium text-gray-700"
+                      >Taxa de Câmbio</label
+                    >
+                    <input
+                      type="number"
+                      id="new-exchange-rate"
+                      name="exchange_rate"
+                      required
+                      step="any"
+                      class="mt-1 block w-full rounded-md border-2 border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-4 text-base"
+                    />
+                  </div>
+                  <div class="pt-4">
+                    <button
+                      type="submit"
+                      class="w-full bg-indigo-600 text-white font-semibold py-4 px-4 rounded-md hover:bg-indigo-700 transition text-base"
+                    >
+                      Adicionar Banco
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Painel de Gestão de Clientes -->
+          <div id="customers-panel" class="panel hidden">
+            <div class="bg-white p-8 rounded-xl shadow-md">
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <!-- O cabeçalho da tabela de clientes será inserido aqui -->
+                  </thead>
+                  <tbody
+                    id="customers-container"
+                    class="bg-white divide-y divide-gray-200"
+                  >
+                    <!-- Os clientes serão carregados aqui -->
+                  </tbody>
+                </table>
+                <div
+                  id="customers-loading-message"
+                  class="text-center p-4 text-gray-500"
+                >
+                  A carregar clientes...
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <footer class="text-center mt-12 text-gray-400 p-4">
+          <p>
+            &copy; 2025 Calculadora de Câmbio. Todos os direitos reservados.
+          </p>
+        </footer>
+      </div>
     </div>
 
+    <!-- Contentor para as notificações Toast -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2"></div>
+
+    <!-- Scripts de Supabase e autenticação -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Script para a lógica do admin -->
     <script src="/js/admin.js"></script>
+    <script>
+      // Lógica para o menu hambúrguer
+      document.addEventListener("DOMContentLoaded", () => {
+        const sidebar = document.getElementById("sidebar");
+        const menuBtn = document.getElementById("menu-btn");
+
+        const navLinks = document.querySelectorAll(".nav-link");
+        const panels = document.querySelectorAll(".panel");
+        const headerTitle = document.getElementById("header-title");
+
+        // Lógica para navegação por painéis
+        navLinks.forEach((link) => {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute("href").substring(1); // ex: "dashboard"
+
+            // Esconde todos os painéis
+            panels.forEach((panel) => {
+              if (panel) panel.classList.add("hidden");
+            });
+            // Mostra o painel alvo
+            document
+              .getElementById(`${targetId}-panel`)
+              .classList.remove("hidden");
+
+            // Atualiza o título do cabeçalho
+            headerTitle.textContent = link.textContent.trim();
+
+            // Atualiza o estado ativo na sidebar
+            document
+              .querySelectorAll("#sidebar-nav a.nav-link")
+              .forEach((nav) => {
+                nav.classList.remove("bg-gray-700", "text-white");
+                nav.classList.add("text-gray-300");
+              });
+            link.classList.add("bg-gray-700", "text-white");
+          });
+        });
+
+        const sidebarOverlay = document.getElementById("sidebar-overlay");
+
+        // Toggle sidebar
+        function toggleSidebar() {
+          sidebar.classList.toggle("-translate-x-full");
+          sidebarOverlay.classList.toggle("hidden");
+        }
+
+        menuBtn.addEventListener("click", toggleSidebar);
+        sidebarOverlay.addEventListener("click", toggleSidebar);
+      });
+    </script>
   </body>
 </html>
