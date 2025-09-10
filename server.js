@@ -9,22 +9,20 @@ const path = require("path");
 const app = express();
 const port = process.env.PORT || 3000;
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 // Configuração do Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
+const resendApiKey = process.env.RESEND_API_KEY;
 
 // Verifica se as chaves do Supabase foram carregadas
-if (!supabaseUrl || !supabaseKey) {
+if (!supabaseUrl || !supabaseKey || !resendApiKey) {
   console.error(
-    "Erro: As variáveis de ambiente SUPABASE_URL e SUPABASE_KEY não estão definidas."
-  );
-  console.error(
-    "Por favor, crie um ficheiro .env e adicione as suas chaves do Supabase."
+    "Erro: Uma ou mais variáveis de ambiente estão em falta (SUPABASE_URL, SUPABASE_KEY, RESEND_API_KEY)."
   );
   process.exit(1); // Termina o processo se as chaves não existirem
 }
 
+const resend = new Resend(resendApiKey);
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Middlewares
